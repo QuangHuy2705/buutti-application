@@ -5,12 +5,20 @@ import { rearrange } from '../utils/rearrange'
 export async function getEvents(req, res, next) {
     try {
         const { year, month, day, time, name } = req.query
+
+        if (!year && !month && !day && !time && !name) {
+            return next({
+                status: 400,
+                message: 'There should be at least one param!'
+            })
+        }
+
         let hour = null
         let minute = null
         let nameRegex = null
 
         if (time) {
-            //TIME FORMATE = HH:MM
+            //TIME FORMAT = HH:MM
             hour = time.split(':')[0]
             minute = time.split(':')[1]
         }
@@ -18,14 +26,8 @@ export async function getEvents(req, res, next) {
         if (name) {
             nameRegex = regexGen(name)
         } else {
+            //IF NAME IS NOT PROVIDED, MATCH EVERYTHING
             nameRegex = /.*/
-        }
-
-        if (!year && !month && !day && !time && !name) {
-            return next({
-                status: 400,
-                message: 'Missing input(s)'
-            })
         }
 
         const events = await Event.aggregate([
@@ -125,9 +127,10 @@ export async function getEvents(req, res, next) {
             },
         ])
 
-        //OPTIONAL - REARRAGE THE RESULTS BASED ON NAME SIMILARITY (USING LEVENSHTEIN ALGORITHM) - MIGHT BE USEFULL FOR NAME SUGGESTION
+        //OPTIONAL - REARRAGE THE RESULTS BASED ON NAME SIMILARITY (USING LEVENSHTEIN ALGORITHM) - MIGHT BE USEFUL FOR NAME SUGGESTION
         const arranged = rearrange(events, name)
 
+        console.log(arranged)
         return res.status(200).json({
             events: arranged
         })
@@ -138,31 +141,37 @@ export async function getEvents(req, res, next) {
 }
 
 export async function getOngoing(req, res, next) {
-    const events = await Event.aggregate([
-        {
-            $match: {
-                $expr: {
-                    $gt: [
-                        {
-                            $multiply: [
-                                '$length', 3600000
-                            ]
-                        },
-                        {
-                            $subtract: [
-                                new Date(),
-                                '$schedule'
-                            ]
-                        }
-                    ]
+    //FIND ONGOING EVENTS BY COMPARING (REQUEST TIME - DATABASE TIME) AND EVENT LENGTH 
+    try {
+        const events = await Event.aggregate([
+            {
+                $match: {
+                    $expr: {
+                        $gt: [
+                            {
+                                $multiply: [
+                                    '$length', 3600000
+                                ]
+                            },
+                            {
+                                $subtract: [
+                                    new Date(), '$schedule'
+                                ]
+                            }
+                        ]
+                    }
                 }
             }
-        }
-    ])
+        ])
 
-    return res.status(200).json({
-        events
-    })
+        console.log(events)
+        return res.status(200).json({
+            events
+        })
+    } catch (e) {
+        console.log(e)
+        return next(e)
+    }
 }
 
 export async function addEvent(req, res, next) {
@@ -179,6 +188,8 @@ export async function addEvent(req, res, next) {
                 length,
                 schedule
             })
+
+            console.log(event)
             return res.status(200).json({ event })
         }
     } catch (e) {
