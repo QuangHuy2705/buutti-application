@@ -5,15 +5,16 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    time: {
+    schedule: {
         type: Date,
         required: true,
-    }, 
+    },
     length: {
         type: Number,
         required: true,
     }
 })
+
 
 const Event = mongoose.model("Event", eventSchema)
 
