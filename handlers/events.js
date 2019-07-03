@@ -9,7 +9,7 @@ export async function getEvents(req, res, next) {
         if (!year && !month && !day && !time && !name) {
             return next({
                 status: 400,
-                message: 'There should be at least one param!'
+                message: 'There should be at least one query input!'
             })
         }
 
@@ -127,7 +127,7 @@ export async function getEvents(req, res, next) {
             },
         ])
 
-        //OPTIONAL - REARRAGE THE RESULTS BASED ON NAME SIMILARITY (USING LEVENSHTEIN ALGORITHM) - MIGHT BE USEFUL FOR NAME SUGGESTION
+        //OPTIONAL - REARRANGE THE RESULTS BASED ON NAME SIMILARITY (USING LEVENSHTEIN ALGORITHM) - MIGHT BE USEFUL FOR NAME SUGGESTION
         const arranged = rearrange(events, name)
 
         console.log(arranged)
@@ -141,7 +141,7 @@ export async function getEvents(req, res, next) {
 }
 
 export async function getOngoing(req, res, next) {
-    //FIND ONGOING EVENTS BY COMPARING (REQUEST TIME - DATABASE TIME) AND EVENT LENGTH 
+    //FIND ONGOING EVENTS BY COMPARING (REQUEST TIME - SCHEDULED TIME) AND EVENT LENGTH 
     try {
         const events = await Event.aggregate([
             {
@@ -150,6 +150,7 @@ export async function getOngoing(req, res, next) {
                         $gt: [
                             {
                                 $multiply: [
+                                    //IN MILISECS
                                     '$length', 3600000
                                 ]
                             },
