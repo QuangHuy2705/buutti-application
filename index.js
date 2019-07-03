@@ -16,7 +16,7 @@ app.use('/api/events', eventsRoutes)
 
 //IF USERS ENTER UNFOUND ROUTES, PASS ERROR TO MIDDLEWARE
 app.use((req, res, next) => {
-    let error = new Error('Not found')
+    let error = new Error('Not Found')
     error.status = 404
     next(error)
 })

@@ -1,9 +1,11 @@
 import mongoose from 'mongoose'
+import config from 'config' //we load the db location from the JSON files based on ENV VAR (test, dev, ...)
 
 mongoose.set("debug", true);
 mongoose.Promise = Promise;
-mongoose.connect(process.env.MONGODB_URI || "mongodb://192.168.99.100:27017/buutti", {
+mongoose.connect(config.DBHost, {
 	keepAlive: true,
+	useNewUrlParser:  true,
 }, () => {
 	console.log("Mongo connected")
 });
