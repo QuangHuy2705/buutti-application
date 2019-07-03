@@ -26,6 +26,6 @@ app.use(errorHandler)
 
 app.listen(PORT, () => {
     console.log(`SERVER is listen on PORT ${PORT}`)
-}) 
+})
 
 export default app //FOR TESTING

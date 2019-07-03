@@ -176,7 +176,7 @@ export async function getOngoing(req, res, next) {
             }
         ])
 
-        console.log(`EVENTS`,events)
+        console.log(`EVENTS`, events)
         return res.status(200).json({
             events
         })

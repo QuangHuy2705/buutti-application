@@ -5,7 +5,7 @@ mongoose.set("debug", true);
 mongoose.Promise = Promise;
 mongoose.connect(config.DBHost, {
 	keepAlive: true,
-	useNewUrlParser:  true,
+	useNewUrlParser: true,
 }, () => {
 	console.log("Mongo connected")
 });
