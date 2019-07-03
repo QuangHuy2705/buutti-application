@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test": "SET NODE_ENV=test&& mocha --timeout 10000 --require @babel/register --require babel-polyfill",
-    "start": "heroku config:set NODE_ENV=dev&& nodemon --exec babel-node ./index.js"
+    "start": "nodemon --exec babel-node ./index.js"
   },
   "repository": {
     "type": "git",
@@ -40,3 +40,4 @@
   },
   "homepage": "https://github.com/QuangHuy2705/buutti-application#readme"
 }
+
