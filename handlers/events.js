@@ -155,17 +155,28 @@ export async function getOngoing(req, res, next) {
                                 ]
                             },
                             {
-                                $subtract: [
-                                    new Date(), '$schedule'
-                                ]
+                                $abs: {
+                                    $subtract: [
+                                        new Date(), '$schedule'
+                                    ]
+                                }
                             }
+                        ]
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    test: {
+                        $subtract: [
+                            new Date(), '$schedule'
                         ]
                     }
                 }
             }
         ])
 
-        console.log(events)
+        console.log(`EVENTS`,events)
         return res.status(200).json({
             events
         })

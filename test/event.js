@@ -12,7 +12,7 @@ chai.use(chaiHttp)
 
 //parent block
 describe('EVENTS', () => {
-    beforeEach((done) => { //mock data for testing
+    before(done => { //mock data for testing
         Event.create([
             {
                 name: 'Halloween Party',
@@ -21,7 +21,7 @@ describe('EVENTS', () => {
             },
             {   
                 name: 'Halloween Party1',
-                schedule: '2019-08-20 23:40',
+                schedule: new Date(), //this item will be used for get-ongoing-event test case
                 length: 4
             }
         ], (err) => { 
@@ -29,18 +29,18 @@ describe('EVENTS', () => {
         })       
     })
 
-    afterEach(done => { 
+    after(done => { 
         Event.deleteMany({}, err => { //after the test, clear database
             done()
         })
     })
 
     //test /POST route 
-    describe('/POST', () => {
-        it('should create a new event', (done) => {
+    describe('/POST event', () => {
+        it('it should create a new event', (done) => {
             const event = {
                 name: 'test1',
-                schedule: '2019-07-03 12:23',
+                schedule: '2019-08-03 12:23',
                 length: 4
             }
     
@@ -51,20 +51,71 @@ describe('EVENTS', () => {
                     res.should.have.status(200)
                     res.body.should.be.a('object')
                     res.body.should.have.property('event')
+                    res.body.event.should.have.property('name')
+                    res.body.event.should.have.property('schedule')
+                    res.body.event.should.have.property('length')
                 })
     
                 done()
         })
     })
 
-    //test /GET route
-    describe('/GET events', () => {
+    //test invalid /GET route
+    describe('invalid /GET events', () => {
         it('it should NOT GET events without query input(s)', (done) => {
             chai.request(app)
                 .get('/api/events')
                 .end((err, res) => {
                     res.should.have.status(400)
-                    console.log(`here`)
+                    done()
+                })
+        })
+    })
+
+    //test valid /GET route
+    describe('valid /GET events', () => {
+        it('it should GET events with provided query(name)', done => {
+            chai.request(app)
+            .get(`/api/events?name=halloween`)
+            .end((err, res) => {
+                res.should.have.status(200)
+                res.body.should.be.a('object')
+                res.body.should.have.property('events')
+                res.body.events.should.be.a('array')
+                res.body.events.length.should.be.eql(2)
+
+                done()
+            })
+        })
+    })
+
+    describe('valid /GET events', () => {
+        it('it should GET events with provided query(year, month, day)', done => {
+            chai.request(app)
+            .get(`/api/events?year=2019&month=8&day=2`)
+            .end((err, res) => {
+                res.should.have.status(200)
+                res.body.should.be.a('object')
+                res.body.should.have.property('events')
+                res.body.events.should.be.a('array')
+                res.body.events.length.should.be.eql(1)
+
+                done()
+            })
+        })
+    })
+
+    //test /GET ONGOING route
+    describe('/GET ONGOING event', () => {
+        it('it should get the ongoing events', done => {
+            chai.request(app)
+                .get('/api/events/ongoing')
+                .end((err, res) => {
+                    res.should.have.status(200)
+                    res.body.should.be.a('object')
+                    res.body.should.have.property('events')       
+                    res.body.events.should.be.a('array')
+                    res.body.events.length.should.be.eql(1)             
                     done()
                 })
         })
